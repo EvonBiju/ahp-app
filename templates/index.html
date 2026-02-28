@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>AHP Test</h2>
+
+<button onclick="test()">Test Backend</button>
+
+<pre id="out"></pre>
+
+<script>
+async function test(){
+  const res = await fetch('/api/calculate', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      decision: "Test Decision",
+      criteria: [],
+      alternatives: [],
+      criteria_comparisons: [],
+      alt_data: []
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("out").textContent =
+    JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
