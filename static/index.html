@@ -1,31 +1,596 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Compass — AHP System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0f0e0b;
+      --paper: #f5f0e8;
+      --cream: #ede8dc;
+      --gold: #b8962e;
+      --gold-light: #d4af5a;
+      --rust: #8b3a2a;
+      --sage: #4a5e4f;
+      --muted: #7a7060;
+      --border: rgba(15,14,11,0.15);
+      --shadow: 0 4px 32px rgba(15,14,11,0.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Libre Baskerville', Georgia, serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
+    header { padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border); position: relative; }
+    header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: var(--gold); }
+    .header-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1; }
+    h1 em { font-style: italic; color: var(--gold); }
+    .header-sub { font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; font-style: italic; }
+    .app { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+    /* Progress */
+    .progress { display: flex; align-items: center; margin-bottom: 3rem; }
+    .step-dot { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .step-dot::before { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 1px; background: var(--border); z-index: 0; }
+    .step-dot:last-child::before { display: none; }
+    .dot-circle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--paper); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); transition: all 0.3s; position: relative; z-index: 1; }
+    .step-dot.active .dot-circle { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 0 0 4px rgba(184,150,46,0.15); }
+    .step-dot.done .dot-circle { background: var(--sage); border-color: var(--sage); color: white; }
+    .dot-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 6px; text-align: center; }
+    .step-dot.active .dot-label { color: var(--gold); }
+
+    /* Panels */
+    .panel { display: none; animation: fadeUp 0.4s ease both; }
+    .panel.active { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .panel-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .panel-desc { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; font-style: italic; }
+
+    /* Cards */
+    .card { background: white; border: 1px solid var(--border); border-radius: 2px; padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); position: relative; }
+    .card-accent { position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); border-radius: 2px 0 0 2px; }
+
+    /* Form */
+    label { display: block; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--paper); font-family: 'Libre Baskerville', serif; font-size: 0.9rem; color: var(--ink); outline: none; transition: border-color 0.2s, box-shadow 0.2s; border-radius: 1px; }
+    input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,46,0.12); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+    .field { margin-bottom: 1.25rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border: 1.5px solid; transition: all 0.2s; border-radius: 1px; }
+    .btn-primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .btn-primary:hover { background: var(--gold); border-color: var(--gold); }
+    .btn-outline { background: transparent; color: var(--ink); border-color: var(--border); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
+    .btn-gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
+    .btn-actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+
+    /* Toggle badges */
+    .badge-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .toggle-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.75rem; border-radius: 20px; cursor: pointer; border: 1px solid; transition: all 0.2s; white-space: nowrap; user-select: none; }
+    .toggle-badge.benefit { background: rgba(74,94,79,0.1); color: var(--sage); border-color: var(--sage); }
+    .toggle-badge.cost    { background: rgba(139,58,42,0.1); color: var(--rust); border-color: var(--rust); }
+    .toggle-badge.objective { background: rgba(184,150,46,0.1); color: var(--gold); border-color: var(--gold); }
+    .toggle-badge.subjective { background: rgba(15,14,11,0.06); color: var(--muted); border-color: var(--border); }
+
+    /* Criteria rows */
+    .criterion-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+
+    /* Matrix */
+    .matrix-wrapper { overflow-x: auto; margin-bottom: 1rem; }
+    table.matrix { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    table.matrix th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 0.5rem; text-align: center; border-bottom: 1px solid var(--border); }
+    table.matrix td { padding: 0.4rem 0.5rem; text-align: center; vertical-align: middle; }
+    table.matrix td.diagonal { background: var(--cream); font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
+    table.matrix td.computed { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+    table.matrix input { width: 70px; padding: 0.35rem 0.5rem; text-align: center; font-size: 0.85rem; }
+
+    /* Objective inputs grid */
+    .obj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
+
+    /* Saaty guide */
+    .saaty-guide { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
+    .saaty-chip { font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); }
+    .saaty-chip span { font-weight: 500; color: var(--ink); }
+
+    /* CR badge */
+    .cr-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.35rem 0.8rem; border-radius: 20px; margin-top: 0.75rem; }
+    .cr-badge.ok   { background: rgba(74,94,79,0.1); color: var(--sage); }
+    .cr-badge.warn { background: rgba(139,58,42,0.1); color: var(--rust); }
+    .cr-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Results */
+    .winner-card { background: linear-gradient(135deg, var(--ink) 0%, #2a2520 100%); color: var(--paper); border-radius: 2px; padding: 2.5rem; text-align: center; margin-bottom: 2rem; position: relative; overflow: hidden; }
+    .winner-card::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(184,150,46,0.04) 20px, rgba(184,150,46,0.04) 21px); }
+    .winner-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+    .winner-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 300; font-style: italic; }
+    .score-bars { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+    .score-row { display: flex; flex-direction: column; gap: 0.4rem; }
+    .score-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .score-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; }
+    .score-val { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+    .bar-track { height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; background: var(--gold); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .bar-fill.first { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+    .rank-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.6rem; padding: 0.15rem 0.5rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); margin-left: 0.5rem; }
+    .rank-badge.gold { border-color: var(--gold); color: var(--gold); background: rgba(184,150,46,0.08); }
+    .criteria-weight-display { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .cw-chip { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; }
+    .cw-chip-val { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold); }
+    .sensitivity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
+    .sens-card { padding: 1rem; border: 1px solid var(--border); border-radius: 2px; background: white; }
+    .sens-criterion { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .sens-result { font-size: 0.9rem; font-weight: 700; }
+    .sens-result.stable  { color: var(--sage); }
+    .sens-result.changed { color: var(--rust); }
+    .sens-arrow { margin: 0.3rem 0; font-size: 0.8rem; color: var(--muted); }
+    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .breakdown-table th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 0.75rem; text-align: right; border-bottom: 1px solid var(--border); }
+    .breakdown-table th:first-child { text-align: left; }
+    .breakdown-table td { padding: 0.6rem 0.75rem; text-align: right; font-family: 'DM Mono', monospace; font-size: 0.75rem; border-bottom: 1px solid rgba(15,14,11,0.05); }
+    .breakdown-table td:first-child { text-align: left; font-family: 'Libre Baskerville', serif; font-size: 0.875rem; }
+    .heat-cell { position: relative; overflow: hidden; }
+    .heat-cell::before { content: ''; position: absolute; inset: 2px; border-radius: 2px; background: var(--gold); opacity: var(--heat, 0); }
+    .heat-cell span { position: relative; z-index: 1; }
+    .section-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .mode-info { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 0.4rem; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .loader-dots { display: inline-flex; gap: 4px; vertical-align: middle; }
+    .loader-dots span { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 1.2s ease-in-out infinite; display: inline-block; }
+    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse { 0%,60%,100% { transform: scale(1); opacity: 0.3; } 30% { transform: scale(1.4); opacity: 1; } }
+  </style>
+</head>
 <body>
-<h2>AHP Test</h2>
+<header>
+  <div class="header-eyebrow">Analytic Hierarchy Process</div>
+  <h1>Decision <em>Compass</em></h1>
+  <p class="header-sub">Structured multi-criteria decision analysis · Hybrid objective &amp; subjective evaluation</p>
+</header>
 
-<button onclick="test()">Test Backend</button>
+<main class="app">
+  <!-- Progress -->
+  <div class="progress">
+    <div class="step-dot active" id="step-0"><div class="dot-circle">1</div><span class="dot-label">Setup</span></div>
+    <div class="step-dot" id="step-1"><div class="dot-circle">2</div><span class="dot-label">Criteria</span></div>
+    <div class="step-dot" id="step-2"><div class="dot-circle">3</div><span class="dot-label">Criteria Matrix</span></div>
+    <div class="step-dot" id="step-3"><div class="dot-circle">4</div><span class="dot-label">Alternatives</span></div>
+    <div class="step-dot" id="step-4"><div class="dot-circle">5</div><span class="dot-label">Results</span></div>
+  </div>
 
-<pre id="out"></pre>
+  <!-- Panel 0: Setup -->
+  <div class="panel active" id="panel-0">
+    <p class="panel-title">What are you deciding?</p>
+    <p class="panel-desc">Define the decision context, number of criteria and alternatives.</p>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="field">
+        <label>Decision statement</label>
+        <input type="text" id="decision-input" placeholder="e.g. Choose the best programming language for our project" />
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Number of criteria (2–10)</label>
+          <input type="number" id="n-criteria" min="2" max="10" value="3" />
+        </div>
+        <div class="field">
+          <label>Number of alternatives (2–8)</label>
+          <input type="number" id="n-alternatives" min="2" max="8" value="3" />
+        </div>
+      </div>
+    </div>
+    <div class="btn-actions">
+      <button class="btn btn-primary" onclick="goToStep1()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Panel 1: Define Criteria & Alternatives -->
+  <div class="panel" id="panel-1">
+    <p class="panel-title">Define criteria &amp; alternatives</p>
+    <p class="panel-desc">Name each criterion, set its type, and choose how it will be evaluated.</p>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="section-label">Criteria</div>
+      <div id="criteria-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-accent" style="background:var(--sage)"></div>
+      <div class="section-label">Alternatives</div>
+      <div id="alt-list"></div>
+    </div>
+    <div class="btn-actions">
+      <button class="btn btn-outline" onclick="setStep(0)">← Back</button>
+      <button class="btn btn-primary" onclick="goToStep2()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Panel 2: Criteria Pairwise -->
+  <div class="panel" id="panel-2">
+    <p class="panel-title">Compare the criteria</p>
+    <p class="panel-desc">How much more important is each criterion relative to the others?</p>
+    <div class="saaty-guide">
+      <div class="saaty-chip"><span>1</span> Equal</div>
+      <div class="saaty-chip"><span>3</span> Moderate</div>
+      <div class="saaty-chip"><span>5</span> Strong</div>
+      <div class="saaty-chip"><span>7</span> Very Strong</div>
+      <div class="saaty-chip"><span>9</span> Extreme</div>
+      <div class="saaty-chip"><span>0.33…</span> Inverse</div>
+    </div>
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="matrix-wrapper" id="criteria-matrix-wrapper"></div>
+      <div id="criteria-cr-display"></div>
+    </div>
+    <div class="btn-actions">
+      <button class="btn btn-outline" onclick="setStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goToStep3()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Panel 3: Alternative Evaluation -->
+  <div class="panel" id="panel-3">
+    <p class="panel-title">Evaluate alternatives</p>
+    <p class="panel-desc">Objective criteria use raw numeric values; subjective criteria use pairwise comparison.</p>
+    <div id="alt-eval-wrapper"></div>
+    <div class="btn-actions">
+      <button class="btn btn-outline" onclick="setStep(2)">← Back</button>
+      <button class="btn btn-gold" onclick="calculate()">
+        <span id="calc-btn-text">Calculate Results →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel 4: Results -->
+  <div class="panel" id="panel-4">
+    <p class="panel-title">Analysis complete</p>
+    <p class="panel-desc">Your structured decision recommendation based on AHP.</p>
+    <div id="results-container"></div>
+    <div class="btn-actions">
+      <button class="btn btn-outline" onclick="setStep(3)">← Revise</button>
+      <button class="btn btn-primary" onclick="restart()">↺ New Decision</button>
+    </div>
+  </div>
+</main>
 
 <script>
-async function test(){
-  const res = await fetch('/api/calculate', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      decision: "Test Decision",
-      criteria: [],
-      alternatives: [],
-      criteria_comparisons: [],
-      alt_data: []
-    })
-  });
+const state = { decision:'', criteria:[], alternatives:[], criteriaComparisons:[] };
 
-  const data = await res.json();
-  document.getElementById("out").textContent =
-    JSON.stringify(data, null, 2);
+function setStep(n) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${n}`).classList.add('active');
+  document.querySelectorAll('.step-dot').forEach((d,i) => {
+    d.classList.remove('active','done');
+    if (i < n) d.classList.add('done');
+    if (i === n) d.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ---- Step 0 → 1 ----
+function goToStep1() {
+  const dec = document.getElementById('decision-input').value.trim();
+  if (!dec) { alert('Please enter a decision statement.'); return; }
+  const nc = parseInt(document.getElementById('n-criteria').value);
+  const na = parseInt(document.getElementById('n-alternatives').value);
+  if (nc < 2 || nc > 10 || na < 2 || na > 8) { alert('Criteria: 2–10, Alternatives: 2–8'); return; }
+  state.decision = dec;
+
+  const cl = document.getElementById('criteria-list');
+  cl.innerHTML = '';
+  for (let i = 0; i < nc; i++) {
+    const prev = state.criteria[i] || {name:'', type:'benefit', mode:'subjective'};
+    cl.innerHTML += `
+      <div class="criterion-row" id="cr-row-${i}">
+        <div class="field" style="margin:0">
+          <label>Criterion ${i+1}</label>
+          <input type="text" id="crit-name-${i}" placeholder="e.g. Cost, Performance…" value="${prev.name}" />
+        </div>
+        <button class="toggle-badge ${prev.type}" id="crit-type-${i}" onclick="toggleType(${i})">${prev.type==='benefit'?'↑ Benefit':'↓ Cost'}</button>
+        <button class="toggle-badge ${prev.mode}" id="crit-mode-${i}" onclick="toggleMode(${i})">${prev.mode==='objective'?'⊞ Objective':'⊟ Subjective'}</button>
+      </div>`;
+  }
+
+  const al = document.getElementById('alt-list');
+  al.innerHTML = '';
+  for (let i = 0; i < na; i++) {
+    al.innerHTML += `
+      <div class="field">
+        <label>Alternative ${i+1}</label>
+        <input type="text" id="alt-name-${i}" placeholder="e.g. Option A, Python, City X…" value="${state.alternatives[i]||''}" />
+      </div>`;
+  }
+  setStep(1);
+}
+
+function toggleType(i) {
+  const btn = document.getElementById(`crit-type-${i}`);
+  const isBenefit = btn.classList.contains('benefit');
+  btn.classList.toggle('benefit', !isBenefit);
+  btn.classList.toggle('cost', isBenefit);
+  btn.textContent = isBenefit ? '↓ Cost' : '↑ Benefit';
+}
+
+function toggleMode(i) {
+  const btn = document.getElementById(`crit-mode-${i}`);
+  const isObj = btn.classList.contains('objective');
+  btn.classList.toggle('objective', !isObj);
+  btn.classList.toggle('subjective', isObj);
+  btn.textContent = isObj ? '⊟ Subjective' : '⊞ Objective';
+}
+
+// ---- Step 1 → 2 ----
+function goToStep2() {
+  const nc = document.querySelectorAll('[id^="crit-name-"]').length;
+  const na = document.querySelectorAll('[id^="alt-name-"]').length;
+  state.criteria = [];
+  for (let i = 0; i < nc; i++) {
+    const name = document.getElementById(`crit-name-${i}`).value.trim();
+    if (!name) { alert(`Please name criterion ${i+1}.`); return; }
+    const type = document.getElementById(`crit-type-${i}`).classList.contains('benefit') ? 'benefit' : 'cost';
+    const mode = document.getElementById(`crit-mode-${i}`).classList.contains('objective') ? 'objective' : 'subjective';
+    state.criteria.push({name, type, mode});
+  }
+  state.alternatives = [];
+  for (let i = 0; i < na; i++) {
+    const name = document.getElementById(`alt-name-${i}`).value.trim();
+    if (!name) { alert(`Please name alternative ${i+1}.`); return; }
+    state.alternatives.push(name);
+  }
+  buildCriteriaMatrix();
+  setStep(2);
+}
+
+// ---- Criteria matrix ----
+function buildCriteriaMatrix() {
+  const names = state.criteria.map(c => c.name);
+  document.getElementById('criteria-matrix-wrapper').innerHTML = buildMatrixHTML('crit', names);
+}
+
+function buildMatrixHTML(prefix, names) {
+  const n = names.length;
+  let html = `<table class="matrix"><thead><tr><th></th>`;
+  names.forEach(c => { html += `<th>${c}</th>`; });
+  html += `</tr></thead><tbody>`;
+  for (let i = 0; i < n; i++) {
+    html += `<tr><td style="text-align:left;font-size:0.8rem;min-width:90px;padding-right:1rem">${names[i]}</td>`;
+    for (let j = 0; j < n; j++) {
+      if (i===j) html += `<td class="diagonal">1</td>`;
+      else if (j>i) html += `<td><input type="number" id="${prefix}-${i}-${j}" min="0.111" max="9" step="0.1" value="1" oninput="updateReciprocal('${prefix}',${i},${j},${n})" /></td>`;
+      else html += `<td class="computed" id="${prefix}-r-${i}-${j}">1</td>`;
+    }
+    html += `</tr>`;
+  }
+  html += `</tbody></table>`;
+  return html;
+}
+
+function updateReciprocal(prefix,i,j,n) {
+  const val = parseFloat(document.getElementById(`${prefix}-${i}-${j}`).value);
+  if (!isNaN(val) && val > 0) {
+    const el = document.getElementById(`${prefix}-r-${j}-${i}`);
+    if (el) el.textContent = (1/val).toFixed(3);
+  }
+}
+
+// ---- Step 2 → 3 ----
+async function goToStep3() {
+  const n = state.criteria.length;
+  const comps = [];
+  for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) {
+    const v = parseFloat(document.getElementById(`crit-${i}-${j}`).value);
+    if (isNaN(v)||v<=0) { alert('All values must be positive numbers.'); return; }
+    comps.push(v);
+  }
+  try {
+    const res = await fetch('/api/validate-criteria', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({n, comparisons:comps})});
+    const data = await res.json();
+    const el = document.getElementById('criteria-cr-display');
+    const ok = data.consistent;
+    el.innerHTML = `<div class="cr-badge ${ok?'ok':'warn'}"><div class="cr-dot"></div>CR = ${data.consistency_ratio.toFixed(4)} — ${ok?'Consistent ✓':'Inconsistent — consider revising'}</div>`;
+    if (!ok && !confirm(`CR = ${data.consistency_ratio.toFixed(3)} exceeds 0.10. Continue anyway?`)) return;
+  } catch(e) { console.warn('CR validation unavailable'); }
+  state.criteriaComparisons = comps;
+  buildAltEvaluation();
+  setStep(3);
+}
+
+// ---- Build alternative evaluation panels ----
+function buildAltEvaluation() {
+  const wrapper = document.getElementById('alt-eval-wrapper');
+  wrapper.innerHTML = '';
+  state.criteria.forEach((crit, ci) => {
+    const typeBadge = `<span class="toggle-badge ${crit.type}" style="cursor:default">${crit.type==='benefit'?'↑ Benefit':'↓ Cost'}</span>`;
+    const modeBadge = `<span class="toggle-badge ${crit.mode}" style="cursor:default">${crit.mode==='objective'?'⊞ Objective':'⊟ Subjective'}</span>`;
+
+    let innerHTML = '';
+    if (crit.mode === 'objective') {
+      innerHTML = `<div class="mode-info" style="margin-bottom:1rem">Enter the actual numeric value for each alternative. Values will be normalized automatically.</div>
+        <div class="obj-grid">`;
+      state.alternatives.forEach((alt, ai) => {
+        innerHTML += `<div class="field" style="margin:0">
+          <label>${alt}</label>
+          <input type="number" id="obj-${ci}-${ai}" min="0.000001" step="any" placeholder="e.g. 95, 1200, 0.85" />
+        </div>`;
+      });
+      innerHTML += `</div>`;
+    } else {
+      innerHTML = `
+        <div class="saaty-guide" style="margin-bottom:0.75rem">
+          <div class="saaty-chip"><span>1</span> Equal</div>
+          <div class="saaty-chip"><span>3</span> Moderate</div>
+          <div class="saaty-chip"><span>5</span> Strong</div>
+          <div class="saaty-chip"><span>7</span> Very Strong</div>
+          <div class="saaty-chip"><span>9</span> Extreme</div>
+        </div>
+        <div class="matrix-wrapper">${buildMatrixHTML(`alt-${ci}`, state.alternatives)}</div>
+        <div id="alt-cr-display-${ci}"></div>`;
+    }
+
+    wrapper.innerHTML += `
+      <div class="card" style="margin-bottom:1.5rem">
+        <div class="card-accent" style="background:var(--sage)"></div>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem">
+          <div class="section-label" style="margin:0">${crit.name}</div>
+          ${typeBadge} ${modeBadge}
+        </div>
+        ${innerHTML}
+      </div>`;
+  });
+}
+
+// ---- Calculate ----
+async function calculate() {
+  const nC = state.criteria.length;
+  const nA = state.alternatives.length;
+  const altData = [];
+
+  for (let ci = 0; ci < nC; ci++) {
+    const crit = state.criteria[ci];
+    if (crit.mode === 'objective') {
+      const vals = [];
+      for (let ai = 0; ai < nA; ai++) {
+        const v = parseFloat(document.getElementById(`obj-${ci}-${ai}`).value);
+        if (isNaN(v)||v<=0) { alert(`Enter a positive value for all alternatives under "${crit.name}".`); return; }
+        vals.push(v);
+      }
+      altData.push(vals);
+    } else {
+      const comps = [];
+      for (let i = 0; i < nA; i++) for (let j = i+1; j < nA; j++) {
+        const v = parseFloat(document.getElementById(`alt-${ci}-${i}-${j}`).value);
+        if (isNaN(v)||v<=0) { alert(`All values in "${crit.name}" matrix must be positive.`); return; }
+        comps.push(v);
+      }
+      altData.push(comps);
+    }
+  }
+
+  const btn = document.getElementById('calc-btn-text');
+  btn.innerHTML = `<span class="loader-dots"><span></span><span></span><span></span></span> Calculating…`;
+
+  try {
+    const res = await fetch('/api/calculate', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        decision: state.decision,
+        criteria: state.criteria,
+        alternatives: state.alternatives,
+        criteria_comparisons: state.criteriaComparisons,
+        alt_data: altData
+      })
+    });
+    const data = await res.json();
+    renderResults(data);
+    setStep(4);
+  } catch(e) {
+    alert('Calculation failed. Make sure the FastAPI server is running.');
+    console.error(e);
+  } finally {
+    btn.textContent = 'Calculate Results →';
+  }
+}
+
+// ---- Render Results ----
+function renderResults(data) {
+  const container = document.getElementById('results-container');
+  const scores = data.final_scores;
+  const alts = state.alternatives;
+  const ranking = data.ranking;
+  const maxScore = Math.max(...scores);
+
+  let html = `<div class="winner-card">
+    <div class="winner-label">Recommended Choice</div>
+    <div class="winner-name">${data.best}</div>
+  </div>`;
+
+  // Score bars
+  html += `<div class="card"><div class="card-accent"></div><div class="section-label">Final Scores</div><div class="score-bars">`;
+  ranking.forEach((ri, rank) => {
+    const pct = (scores[ri] / maxScore * 100).toFixed(1);
+    html += `<div class="score-row">
+      <div class="score-header">
+        <span class="score-name">${alts[ri]} <span class="rank-badge ${rank===0?'gold':''}">#${rank+1}</span></span>
+        <span class="score-val">${scores[ri].toFixed(4)}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill ${rank===0?'first':''}" style="width:${pct}%"></div></div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Criteria weights
+  html += `<div class="card"><div class="card-accent"></div><div class="section-label">Criteria Weights</div><div class="criteria-weight-display">`;
+  state.criteria.forEach((c, i) => {
+    const modeBadge = `<span class="toggle-badge ${c.mode}" style="cursor:default;font-size:0.55rem;padding:0.2rem 0.5rem">${c.mode}</span>`;
+    html += `<div class="cw-chip">${modeBadge} <span>${c.name}</span> <span class="cw-chip-val">${(data.criteria_weights[i]*100).toFixed(1)}%</span></div>`;
+  });
+  const crOk = data.criteria_cr <= 0.1;
+  html += `</div><div class="cr-badge ${crOk?'ok':'warn'}"><div class="cr-dot"></div>Criteria CR: ${data.criteria_cr.toFixed(4)} — ${crOk?'Consistent':'Warning: Inconsistent'}</div></div>`;
+
+  // Contribution heatmap
+  const ds = data.detailed_scores;
+  const critMaxes = state.criteria.map(c => Math.max(...ds[c.name]));
+  html += `<div class="card"><div class="card-accent" style="background:var(--sage)"></div><div class="section-label">Contribution Breakdown</div>
+    <div class="matrix-wrapper"><table class="breakdown-table"><thead><tr><th>Alternative</th>`;
+  state.criteria.forEach(c => { html += `<th>${c.name}</th>`; });
+  html += `</tr></thead><tbody>`;
+  alts.forEach(alt => {
+    html += `<tr><td>${alt}</td>`;
+    state.criteria.forEach((c, ci) => {
+      const v = ds[c.name][alts.indexOf(alt)];
+      const heat = critMaxes[ci] > 0 ? (v / critMaxes[ci] * 0.35) : 0;
+      html += `<td class="heat-cell" style="--heat:${heat.toFixed(3)}"><span>${v.toFixed(4)}</span></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+
+  // CR info per criterion
+  const anyCR = data.alt_crs.some(cr => cr !== null);
+  if (anyCR) {
+    html += `<div class="card"><div class="card-accent" style="background:var(--muted)"></div><div class="section-label">Subjective Criteria Consistency</div>`;
+    state.criteria.forEach((c, i) => {
+      if (data.alt_crs[i] !== null) {
+        const ok = data.alt_crs[i] <= 0.1;
+        html += `<div class="cr-badge ${ok?'ok':'warn'}" style="margin-right:0.5rem"><div class="cr-dot"></div>${c.name}: CR = ${data.alt_crs[i].toFixed(4)}</div>`;
+      }
+    });
+    html += `</div>`;
+  }
+
+  // Sensitivity
+  html += `<div class="card"><div class="card-accent" style="background:var(--rust)"></div><div class="section-label">Sensitivity Analysis (+10% per criterion)</div><div class="sensitivity-grid">`;
+  data.sensitivity.forEach(s => {
+    html += `<div class="sens-card">
+      <div class="sens-criterion">${s.criterion}</div>
+      <div class="sens-result ${s.stable?'stable':'changed'}">${s.stable?'● Stable':'● Changed'}</div>
+      ${!s.stable?`<div class="sens-arrow">→ ${s.new_best}</div>`:''}
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  container.innerHTML = html;
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(b => {
+      const w = b.style.width; b.style.width = '0';
+      setTimeout(() => { b.style.width = w; }, 50);
+    });
+  }, 100);
+}
+
+function restart() {
+  state.criteria = []; state.alternatives = []; state.criteriaComparisons = [];
+  document.getElementById('decision-input').value = '';
+  setStep(0);
 }
 </script>
-
 </body>
 </html>
