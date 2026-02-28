@@ -1,203 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Decision Compass — AHP System</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --ink: #0f0e0b;
-      --paper: #f5f0e8;
-      --cream: #ede8dc;
-      --gold: #b8962e;
-      --gold-light: #d4af5a;
-      --rust: #8b3a2a;
-      --sage: #4a5e4f;
-      --muted: #7a7060;
-      --border: rgba(15,14,11,0.15);
-      --shadow: 0 4px 32px rgba(15,14,11,0.10);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Libre Baskerville', Georgia, serif; background: var(--paper); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 9999; opacity: 0.4; }
-    header { padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border); position: relative; }
-    header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 80px; height: 2px; background: var(--gold); }
-    .header-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
-    h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1; }
-    h1 em { font-style: italic; color: var(--gold); }
-    .header-sub { font-size: 0.9rem; color: var(--muted); margin-top: 0.75rem; font-style: italic; }
-    .app { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+    :root{--ink:#0f0e0b;--paper:#f5f0e8;--cream:#ede8dc;--gold:#b8962e;--gold-light:#d4af5a;--rust:#8b3a2a;--sage:#4a5e4f;--violet:#4a3f6b;--muted:#7a7060;--border:rgba(15,14,11,0.15);--shadow:0 4px 32px rgba(15,14,11,0.10);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Libre Baskerville',Georgia,serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4;}
+    header{padding:3rem 2rem 2rem;text-align:center;border-bottom:1px solid var(--border);position:relative;}
+    header::after{content:'';position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:80px;height:2px;background:var(--gold);}
+    .header-eyebrow{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;}
+    h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.1;}
+    h1 em{font-style:italic;color:var(--gold);}
+    .header-sub{font-size:0.9rem;color:var(--muted);margin-top:0.75rem;font-style:italic;}
+    .app{max-width:860px;margin:0 auto;padding:3rem 1.5rem 6rem;}
 
     /* Progress */
-    .progress { display: flex; align-items: center; margin-bottom: 3rem; }
-    .step-dot { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-    .step-dot::before { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 1px; background: var(--border); z-index: 0; }
-    .step-dot:last-child::before { display: none; }
-    .dot-circle { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--paper); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); transition: all 0.3s; position: relative; z-index: 1; }
-    .step-dot.active .dot-circle { background: var(--gold); border-color: var(--gold); color: white; box-shadow: 0 0 0 4px rgba(184,150,46,0.15); }
-    .step-dot.done .dot-circle { background: var(--sage); border-color: var(--sage); color: white; }
-    .dot-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 6px; text-align: center; }
-    .step-dot.active .dot-label { color: var(--gold); }
+    .progress{display:flex;align-items:center;margin-bottom:3rem;}
+    .step-dot{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+    .step-dot::before{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:1px;background:var(--border);z-index:0;}
+    .step-dot:last-child::before{display:none;}
+    .dot-circle{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);transition:all 0.3s;position:relative;z-index:1;}
+    .step-dot.active .dot-circle{background:var(--gold);border-color:var(--gold);color:white;box-shadow:0 0 0 4px rgba(184,150,46,0.15);}
+    .step-dot.done .dot-circle{background:var(--sage);border-color:var(--sage);color:white;}
+    .dot-label{font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-top:6px;text-align:center;}
+    .step-dot.active .dot-label{color:var(--gold);}
 
     /* Panels */
-    .panel { display: none; animation: fadeUp 0.4s ease both; }
-    .panel.active { display: block; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-    .panel-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 1.8rem; margin-bottom: 0.4rem; }
-    .panel-desc { color: var(--muted); font-size: 0.875rem; margin-bottom: 2rem; font-style: italic; }
+    .panel{display:none;animation:fadeUp 0.4s ease both;}
+    .panel.active{display:block;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+    .panel-title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:1.8rem;margin-bottom:0.4rem;}
+    .panel-desc{color:var(--muted);font-size:0.875rem;margin-bottom:2rem;font-style:italic;}
 
     /* Cards */
-    .card { background: white; border: 1px solid var(--border); border-radius: 2px; padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); position: relative; }
-    .card-accent { position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--gold); border-radius: 2px 0 0 2px; }
+    .card{background:white;border:1px solid var(--border);border-radius:2px;padding:1.75rem;margin-bottom:1.25rem;box-shadow:var(--shadow);position:relative;}
+    .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:2px 0 0 2px;}
 
     /* Form */
-    label { display: block; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
-    input[type="text"], input[type="number"], select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); background: var(--paper); font-family: 'Libre Baskerville', serif; font-size: 0.9rem; color: var(--ink); outline: none; transition: border-color 0.2s, box-shadow 0.2s; border-radius: 1px; }
-    input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,46,0.12); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-    .field { margin-bottom: 1.25rem; }
-    .field:last-child { margin-bottom: 0; }
+    label{display:block;font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+    input[type="text"],input[type="number"]{width:100%;padding:0.75rem 1rem;border:1px solid var(--border);background:var(--paper);font-family:'Libre Baskerville',serif;font-size:0.9rem;color:var(--ink);outline:none;transition:border-color 0.2s,box-shadow 0.2s;border-radius:1px;}
+    input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,150,46,0.12);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+    .field{margin-bottom:1.25rem;}
+    .field:last-child{margin-bottom:0;}
 
     /* Buttons */
-    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border: 1.5px solid; transition: all 0.2s; border-radius: 1px; }
-    .btn-primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .btn-primary:hover { background: var(--gold); border-color: var(--gold); }
-    .btn-outline { background: transparent; color: var(--ink); border-color: var(--border); }
-    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-    .btn-gold { background: var(--gold); color: white; border-color: var(--gold); }
-    .btn-gold:hover { background: var(--gold-light); border-color: var(--gold-light); }
-    .btn-actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+    .btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.85rem 2rem;font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:1.5px solid;transition:all 0.2s;border-radius:1px;}
+    .btn-primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+    .btn-primary:hover{background:var(--gold);border-color:var(--gold);}
+    .btn-outline{background:transparent;color:var(--ink);border-color:var(--border);}
+    .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+    .btn-gold{background:var(--gold);color:white;border-color:var(--gold);}
+    .btn-gold:hover{background:var(--gold-light);border-color:var(--gold-light);}
+    .btn-actions{display:flex;gap:1rem;margin-top:2rem;flex-wrap:wrap;}
 
     /* Toggle badges */
-    .badge-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .toggle-badge { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.75rem; border-radius: 20px; cursor: pointer; border: 1px solid; transition: all 0.2s; white-space: nowrap; user-select: none; }
-    .toggle-badge.benefit { background: rgba(74,94,79,0.1); color: var(--sage); border-color: var(--sage); }
-    .toggle-badge.cost    { background: rgba(139,58,42,0.1); color: var(--rust); border-color: var(--rust); }
-    .toggle-badge.objective { background: rgba(184,150,46,0.1); color: var(--gold); border-color: var(--gold); }
-    .toggle-badge.subjective { background: rgba(15,14,11,0.06); color: var(--muted); border-color: var(--border); }
+    .toggle-badge{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.3rem 0.75rem;border-radius:20px;cursor:pointer;border:1px solid;transition:all 0.2s;white-space:nowrap;user-select:none;}
+    .toggle-badge.benefit{background:rgba(74,94,79,0.1);color:var(--sage);border-color:var(--sage);}
+    .toggle-badge.cost{background:rgba(139,58,42,0.1);color:var(--rust);border-color:var(--rust);}
+    .toggle-badge.objective{background:rgba(184,150,46,0.1);color:var(--gold);border-color:var(--gold);}
+    .toggle-badge.subjective{background:rgba(15,14,11,0.06);color:var(--muted);border-color:var(--border);}
+    .toggle-badge.uncertain{background:rgba(74,63,107,0.1);color:var(--violet);border-color:var(--violet);}
 
-    /* Criteria rows */
-    .criterion-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.75rem; align-items: end; margin-bottom: 0.75rem; }
+    /* Criterion row */
+    .criterion-row{display:grid;grid-template-columns:1fr auto auto auto;gap:0.6rem;align-items:end;margin-bottom:0.75rem;}
+    @media(max-width:580px){.criterion-row{grid-template-columns:1fr;gap:0.4rem;}}
 
-    /* Matrix */
-    .matrix-wrapper { overflow-x: auto; margin-bottom: 1rem; }
-    table.matrix { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    table.matrix th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 0.5rem; text-align: center; border-bottom: 1px solid var(--border); }
-    table.matrix td { padding: 0.4rem 0.5rem; text-align: center; vertical-align: middle; }
-    table.matrix td.diagonal { background: var(--cream); font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); }
-    table.matrix td.computed { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
-    table.matrix input { width: 70px; padding: 0.35rem 0.5rem; text-align: center; font-size: 0.85rem; }
+    /* Obj grid */
+    .obj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:0.75rem;}
 
-    /* Objective inputs grid */
-    .obj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
-
-    /* Saaty guide */
-    .saaty-guide { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem; }
-    .saaty-chip { font-family: 'DM Mono', monospace; font-size: 0.65rem; padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); }
-    .saaty-chip span { font-weight: 500; color: var(--ink); }
+    /* ===== PAIRWISE QUESTION CARDS ===== */
+    .pairwise-list{display:flex;flex-direction:column;gap:1.25rem;}
+    .pw-card{background:var(--paper);border:1px solid var(--border);border-radius:2px;padding:1.25rem 1.5rem;}
+    .pw-question{font-size:0.92rem;margin-bottom:1rem;line-height:1.5;color:var(--ink);}
+    .pw-question strong{color:var(--gold);}
+    .pw-slider-wrap{display:flex;flex-direction:column;gap:0.6rem;}
+    .pw-labels{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--muted);}
+    .pw-label-left{text-align:left;max-width:40%;color:var(--rust);}
+    .pw-label-right{text-align:right;max-width:40%;color:var(--sage);}
+    input[type="range"].pw-slider{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--rust),var(--cream) 50%,var(--sage));outline:none;cursor:pointer;}
+    input[type="range"].pw-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.2);cursor:pointer;transition:transform 0.15s;}
+    input[type="range"].pw-slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
+    input[type="range"].pw-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid white;cursor:pointer;}
+    .pw-value-display{text-align:center;font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--ink);min-height:1.4rem;}
+    .pw-value-display span{background:var(--cream);padding:0.2rem 0.7rem;border-radius:20px;border:1px solid var(--border);}
 
     /* CR badge */
-    .cr-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-family: 'DM Mono', monospace; font-size: 0.7rem; padding: 0.35rem 0.8rem; border-radius: 20px; margin-top: 0.75rem; }
-    .cr-badge.ok   { background: rgba(74,94,79,0.1); color: var(--sage); }
-    .cr-badge.warn { background: rgba(139,58,42,0.1); color: var(--rust); }
-    .cr-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .cr-badge{display:inline-flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.7rem;padding:0.35rem 0.8rem;border-radius:20px;margin-top:0.75rem;}
+    .cr-badge.ok{background:rgba(74,94,79,0.1);color:var(--sage);}
+    .cr-badge.warn{background:rgba(139,58,42,0.1);color:var(--rust);}
+    .cr-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+    /* Uncertain */
+    .unc-table{width:100%;border-collapse:collapse;margin-bottom:1rem;}
+    .unc-table th{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:left;}
+    .unc-table td{padding:0.4rem 0.5rem;vertical-align:middle;}
+    .unc-table td:first-child{font-size:0.85rem;padding-left:0.75rem;min-width:100px;font-style:italic;}
+    .unc-table input{width:100%;min-width:80px;}
+    .risk-row{display:flex;align-items:center;gap:1rem;margin-top:1rem;flex-wrap:wrap;}
+    .risk-row label{margin:0;white-space:nowrap;}
+
+    /* Info / Accordion */
+    .info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:0;}
+    .info-card{border:1px solid var(--border);border-radius:2px;padding:1.25rem;background:white;position:relative;overflow:hidden;}
+    .info-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+    .info-card.benefit::before{background:var(--sage);}
+    .info-card.cost::before{background:var(--rust);}
+    .info-card.objective::before{background:var(--gold);}
+    .info-card.subjective::before{background:var(--muted);}
+    .info-card.uncertain::before{background:var(--violet);}
+    .info-card-title{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.5rem;}
+    .info-card.benefit .info-card-title{color:var(--sage);}
+    .info-card.cost .info-card-title{color:var(--rust);}
+    .info-card.objective .info-card-title{color:var(--gold);}
+    .info-card.subjective .info-card-title{color:var(--muted);}
+    .info-card.uncertain .info-card-title{color:var(--violet);}
+    .info-card-body{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+    .info-card-example{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--ink);margin-top:0.5rem;padding:0.4rem 0.6rem;background:var(--cream);border-radius:2px;}
+    .saaty-table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-top:0.75rem;}
+    .saaty-table th{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);text-align:left;}
+    .saaty-table td{padding:0.45rem 0.75rem;border-bottom:1px solid rgba(15,14,11,0.05);color:var(--muted);}
+    .saaty-table td:first-child{font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);width:3.5rem;}
+    .saaty-table td:nth-child(2){font-weight:700;color:var(--ink);}
+    .accordion-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:0.75rem 0;border-bottom:1px solid var(--border);user-select:none;}
+    .accordion-title{font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);}
+    .accordion-arrow{font-size:0.8rem;color:var(--muted);transition:transform 0.2s;}
+    .accordion-arrow.open{transform:rotate(180deg);}
+    .accordion-body{overflow:hidden;max-height:0;transition:max-height 0.35s ease;}
+    .accordion-body.open{max-height:2000px;}
 
     /* Results */
-    .winner-card { background: linear-gradient(135deg, var(--ink) 0%, #2a2520 100%); color: var(--paper); border-radius: 2px; padding: 2.5rem; text-align: center; margin-bottom: 2rem; position: relative; overflow: hidden; }
-    .winner-card::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(184,150,46,0.04) 20px, rgba(184,150,46,0.04) 21px); }
-    .winner-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
-    .winner-name { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 300; font-style: italic; }
-    .score-bars { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
-    .score-row { display: flex; flex-direction: column; gap: 0.4rem; }
-    .score-header { display: flex; justify-content: space-between; align-items: baseline; }
-    .score-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; }
-    .score-val { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); }
-    .bar-track { height: 6px; background: var(--cream); border-radius: 3px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 3px; background: var(--gold); transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-    .bar-fill.first { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
-    .rank-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.6rem; padding: 0.15rem 0.5rem; border: 1px solid var(--border); border-radius: 20px; color: var(--muted); margin-left: 0.5rem; }
-    .rank-badge.gold { border-color: var(--gold); color: var(--gold); background: rgba(184,150,46,0.08); }
-    .criteria-weight-display { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-    .cw-chip { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; }
-    .cw-chip-val { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold); }
-    .sensitivity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem; }
-    .sens-card { padding: 1rem; border: 1px solid var(--border); border-radius: 2px; background: white; }
-    .sens-criterion { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
-    .sens-result { font-size: 0.9rem; font-weight: 700; }
-    .sens-result.stable  { color: var(--sage); }
-    .sens-result.changed { color: var(--rust); }
-    .sens-arrow { margin: 0.3rem 0; font-size: 0.8rem; color: var(--muted); }
-    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-    .breakdown-table th { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 0.75rem; text-align: right; border-bottom: 1px solid var(--border); }
-    .breakdown-table th:first-child { text-align: left; }
-    .breakdown-table td { padding: 0.6rem 0.75rem; text-align: right; font-family: 'DM Mono', monospace; font-size: 0.75rem; border-bottom: 1px solid rgba(15,14,11,0.05); }
-    .breakdown-table td:first-child { text-align: left; font-family: 'Libre Baskerville', serif; font-size: 0.875rem; }
-    .heat-cell { position: relative; overflow: hidden; }
-    .heat-cell::before { content: ''; position: absolute; inset: 2px; border-radius: 2px; background: var(--gold); opacity: var(--heat, 0); }
-    .heat-cell span { position: relative; z-index: 1; }
-    .section-label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
-    .mode-info { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); margin-top: 0.4rem; }
-    .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
-    .loader-dots { display: inline-flex; gap: 4px; vertical-align: middle; }
-    .loader-dots span { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); animation: pulse 1.2s ease-in-out infinite; display: inline-block; }
-    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes pulse { 0%,60%,100% { transform: scale(1); opacity: 0.3; } 30% { transform: scale(1.4); opacity: 1; } }
+    .winner-card{background:linear-gradient(135deg,var(--ink) 0%,#2a2520 100%);color:var(--paper);border-radius:2px;padding:2.5rem;text-align:center;margin-bottom:2rem;position:relative;overflow:hidden;}
+    .winner-card::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(184,150,46,0.04) 20px,rgba(184,150,46,0.04) 21px);}
+    .winner-label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;}
+    .winner-name{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,5vw,3rem);font-weight:300;font-style:italic;}
+    .score-bars{display:flex;flex-direction:column;gap:1rem;margin:1.5rem 0;}
+    .score-row{display:flex;flex-direction:column;gap:0.4rem;}
+    .score-header{display:flex;justify-content:space-between;align-items:baseline;}
+    .score-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;}
+    .score-val{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--muted);}
+    .bar-track{height:6px;background:var(--cream);border-radius:3px;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.8s cubic-bezier(0.16,1,0.3,1);}
+    .bar-fill.first{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+    .rank-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:0.6rem;padding:0.15rem 0.5rem;border:1px solid var(--border);border-radius:20px;color:var(--muted);margin-left:0.5rem;}
+    .rank-badge.gold{border-color:var(--gold);color:var(--gold);background:rgba(184,150,46,0.08);}
+    .criteria-weight-display{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;}
+    .cw-chip{display:flex;align-items:center;gap:0.4rem;padding:0.4rem 0.8rem;border:1px solid var(--border);border-radius:20px;font-size:0.8rem;}
+    .cw-chip-val{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--gold);}
+    .sensitivity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.75rem;}
+    .sens-card{padding:1rem;border:1px solid var(--border);border-radius:2px;background:white;}
+    .sens-criterion{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;}
+    .sens-result{font-size:0.9rem;font-weight:700;}
+    .sens-result.stable{color:var(--sage);}
+    .sens-result.changed{color:var(--rust);}
+    .sens-arrow{margin:0.3rem 0;font-size:0.8rem;color:var(--muted);}
+    .breakdown-table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+    .breakdown-table th{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:0.6rem 0.75rem;text-align:right;border-bottom:1px solid var(--border);}
+    .breakdown-table th:first-child{text-align:left;}
+    .breakdown-table td{padding:0.6rem 0.75rem;text-align:right;font-family:'DM Mono',monospace;font-size:0.75rem;border-bottom:1px solid rgba(15,14,11,0.05);}
+    .breakdown-table td:first-child{text-align:left;font-family:'Libre Baskerville',serif;font-size:0.875rem;}
+    .heat-cell{position:relative;overflow:hidden;}
+    .heat-cell::before{content:'';position:absolute;inset:2px;border-radius:2px;background:var(--gold);opacity:var(--heat,0);}
+    .heat-cell span{position:relative;z-index:1;}
+    .unc-detail-table{width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:0.5rem;}
+    .unc-detail-table th{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);padding:0.4rem 0.6rem;border-bottom:1px solid var(--border);text-align:left;}
+    .unc-detail-table td{padding:0.4rem 0.6rem;font-family:'DM Mono',monospace;border-bottom:1px solid rgba(15,14,11,0.05);}
+    .section-label{font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+    .mode-info{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;}
+    .loader-dots{display:inline-flex;gap:4px;vertical-align:middle;}
+    .loader-dots span{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 1.2s ease-in-out infinite;display:inline-block;}
+    .loader-dots span:nth-child(2){animation-delay:0.2s;}
+    .loader-dots span:nth-child(3){animation-delay:0.4s;}
+    @keyframes pulse{0%,60%,100%{transform:scale(1);opacity:0.3;}30%{transform:scale(1.4);opacity:1;}}
+    .matrix-wrapper{overflow-x:auto;}
   </style>
 </head>
 <body>
 <header>
   <div class="header-eyebrow">Analytic Hierarchy Process</div>
   <h1>Decision <em>Compass</em></h1>
-  <p class="header-sub">Structured multi-criteria decision analysis · Hybrid objective &amp; subjective evaluation</p>
+  <p class="header-sub">Structured multi-criteria decision analysis · Objective, Subjective &amp; Uncertain evaluation</p>
 </header>
 
 <main class="app">
-  <!-- Progress -->
   <div class="progress">
     <div class="step-dot active" id="step-0"><div class="dot-circle">1</div><span class="dot-label">Setup</span></div>
     <div class="step-dot" id="step-1"><div class="dot-circle">2</div><span class="dot-label">Criteria</span></div>
-    <div class="step-dot" id="step-2"><div class="dot-circle">3</div><span class="dot-label">Criteria Matrix</span></div>
-    <div class="step-dot" id="step-3"><div class="dot-circle">4</div><span class="dot-label">Alternatives</span></div>
+    <div class="step-dot" id="step-2"><div class="dot-circle">3</div><span class="dot-label">Importance</span></div>
+    <div class="step-dot" id="step-3"><div class="dot-circle">4</div><span class="dot-label">Evaluate</span></div>
     <div class="step-dot" id="step-4"><div class="dot-circle">5</div><span class="dot-label">Results</span></div>
   </div>
 
-  <!-- Panel 0: Setup -->
+  <!-- ===== PANEL 0: SETUP ===== -->
   <div class="panel active" id="panel-0">
     <p class="panel-title">What are you deciding?</p>
-    <p class="panel-desc">Define the decision context, number of criteria and alternatives.</p>
+    <p class="panel-desc">Set your decision context, then explore the guide below before naming your criteria.</p>
     <div class="card">
-      <div class="card-accent"></div>
+      <div class="card-accent" style="background:var(--gold)"></div>
       <div class="field">
         <label>Decision statement</label>
-        <input type="text" id="decision-input" placeholder="e.g. Choose the best programming language for our project" />
+        <input type="text" id="decision-input" placeholder="e.g. Choose the best laptop for our team"/>
       </div>
       <div class="form-row">
         <div class="field">
           <label>Number of criteria (2–10)</label>
-          <input type="number" id="n-criteria" min="2" max="10" value="3" />
+          <input type="number" id="n-criteria" min="2" max="10" value="3"/>
         </div>
         <div class="field">
           <label>Number of alternatives (2–8)</label>
-          <input type="number" id="n-alternatives" min="2" max="8" value="3" />
+          <input type="number" id="n-alternatives" min="2" max="8" value="3"/>
         </div>
       </div>
     </div>
+
+    <!-- Reference Guide -->
+    <div class="card">
+      <div class="card-accent" style="background:var(--muted)"></div>
+      <div class="section-label">Reference Guide</div>
+
+      <div class="accordion-header" onclick="toggleAcc('types')">
+        <span class="accordion-title">Criterion Type — Benefit vs Cost</span>
+        <span class="accordion-arrow" id="arr-types">▼</span>
+      </div>
+      <div class="accordion-body" id="acc-types">
+        <div style="padding:1rem 0">
+          <div class="info-grid">
+            <div class="info-card benefit">
+              <div class="info-card-title">↑ Benefit — Higher is better</div>
+              <div class="info-card-body">You want the alternative with the highest value. Scores are normalized directly.</div>
+              <div class="info-card-example">Performance score · Revenue · Customer rating · Speed (faster=better) · Accuracy %</div>
+            </div>
+            <div class="info-card cost">
+              <div class="info-card-title">↓ Cost — Lower is better</div>
+              <div class="info-card-body">You want the alternative with the lowest value. Values are automatically inverted so cheaper options score higher.</div>
+              <div class="info-card-example">Price ($) · Delivery time (days) · Energy use (kWh) · Error rate % · Maintenance cost</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-header" onclick="toggleAcc('modes')">
+        <span class="accordion-title">Evaluation Mode — Objective, Subjective, Uncertain</span>
+        <span class="accordion-arrow" id="arr-modes">▼</span>
+      </div>
+      <div class="accordion-body" id="acc-modes">
+        <div style="padding:1rem 0">
+          <div class="info-grid">
+            <div class="info-card objective">
+              <div class="info-card-title">⊞ Objective — I have real numbers</div>
+              <div class="info-card-body">Enter the actual measured value for each alternative. The system normalizes them automatically. <strong>Use this whenever possible.</strong></div>
+              <div class="info-card-example">Price = $500 · RAM = 16GB · Speed = 120ms · Rating = 4.7 · Weight = 1.4kg</div>
+            </div>
+            <div class="info-card subjective">
+              <div class="info-card-title">⊟ Subjective — I'll compare by feel</div>
+              <div class="info-card-body">No hard data. You answer simple "which is better and by how much?" questions for each pair of alternatives using a slider — no matrix needed.</div>
+              <div class="info-card-example">Design quality · Brand reputation · Ease of use · Team expertise · Cultural fit</div>
+            </div>
+            <div class="info-card uncertain">
+              <div class="info-card-title">◈ Uncertain — I have estimates with risk</div>
+              <div class="info-card-body">You have a best-guess value (mean) and an uncertainty/risk estimate (variance). Set your risk tolerance λ. Score = Mean − λ × Variance.</div>
+              <div class="info-card-example">Projected revenue · Estimated timelines · Investment returns · Forecasted demand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-header" onclick="toggleAcc('saaty')">
+        <span class="accordion-title">Pairwise Comparison Scale — How the sliders work</span>
+        <span class="accordion-arrow" id="arr-saaty">▼</span>
+      </div>
+      <div class="accordion-body" id="acc-saaty">
+        <div style="padding:1rem 0">
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">Used when comparing criteria importance and for subjective criteria. Move the slider to indicate your preference.</p>
+          <table class="saaty-table">
+            <thead><tr><th>Value</th><th>Meaning</th><th>Example</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Equal</td><td>Both options are equally important / preferred</td></tr>
+              <tr><td>3</td><td>Moderate</td><td>One is slightly more preferred based on experience</td></tr>
+              <tr><td>5</td><td>Strong</td><td>Clearly more preferred; demonstrated in practice</td></tr>
+              <tr><td>7</td><td>Very Strong</td><td>Dominates clearly; very strong evidence</td></tr>
+              <tr><td>9</td><td>Extreme</td><td>Absolutely dominant; highest possible preference</td></tr>
+              <tr><td>2,4,6,8</td><td>In-between</td><td>When you need a shade between two levels</td></tr>
+              <tr><td>Left of center</td><td>Left side preferred</td><td>Slider left = left item is more important</td></tr>
+              <tr><td>Right of center</td><td>Right side preferred</td><td>Slider right = right item is more important</td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:0.75rem;font-style:italic">Consistency Ratio (CR) ≤ 0.10 means your comparisons are logically consistent. If CR &gt; 0.10, some of your judgments may contradict each other.</p>
+        </div>
+      </div>
+
+      <div class="accordion-header" onclick="toggleAcc('risk')" style="border-bottom:none">
+        <span class="accordion-title">Risk Tolerance (λ) — For Uncertain mode</span>
+        <span class="accordion-arrow" id="arr-risk">▼</span>
+      </div>
+      <div class="accordion-body" id="acc-risk">
+        <div style="padding:1rem 0 0">
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem">Formula: <strong style="font-family:'DM Mono',monospace">Adjusted Score = Mean − λ × Variance</strong></p>
+          <table class="saaty-table">
+            <thead><tr><th>λ value</th><th>Profile</th><th>Effect</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>Risk-neutral</td><td>Ignores uncertainty — only the mean matters</td></tr>
+              <tr><td>0.5</td><td>Mildly cautious</td><td>Small penalty for high-variance options</td></tr>
+              <tr><td>1</td><td>Moderate (default)</td><td>Balanced trade-off between return and risk</td></tr>
+              <tr><td>2–3</td><td>Risk-averse</td><td>Strongly penalises uncertain options</td></tr>
+              <tr><td>&gt;5</td><td>Very risk-averse</td><td>Almost always picks the most stable option</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div class="btn-actions">
       <button class="btn btn-primary" onclick="goToStep1()">Continue →</button>
     </div>
   </div>
 
-  <!-- Panel 1: Define Criteria & Alternatives -->
+  <!-- ===== PANEL 1: CRITERIA & ALTERNATIVES ===== -->
   <div class="panel" id="panel-1">
     <p class="panel-title">Define criteria &amp; alternatives</p>
-    <p class="panel-desc">Name each criterion, set its type, and choose how it will be evaluated.</p>
+    <p class="panel-desc">Name each criterion, set its type and how it will be evaluated. Objective is the default — switch to Subjective or Uncertain if needed.</p>
     <div class="card">
-      <div class="card-accent"></div>
+      <div class="card-accent" style="background:var(--gold)"></div>
       <div class="section-label">Criteria</div>
       <div id="criteria-list"></div>
     </div>
@@ -212,21 +342,13 @@
     </div>
   </div>
 
-  <!-- Panel 2: Criteria Pairwise -->
+  <!-- ===== PANEL 2: CRITERIA IMPORTANCE ===== -->
   <div class="panel" id="panel-2">
-    <p class="panel-title">Compare the criteria</p>
-    <p class="panel-desc">How much more important is each criterion relative to the others?</p>
-    <div class="saaty-guide">
-      <div class="saaty-chip"><span>1</span> Equal</div>
-      <div class="saaty-chip"><span>3</span> Moderate</div>
-      <div class="saaty-chip"><span>5</span> Strong</div>
-      <div class="saaty-chip"><span>7</span> Very Strong</div>
-      <div class="saaty-chip"><span>9</span> Extreme</div>
-      <div class="saaty-chip"><span>0.33…</span> Inverse</div>
-    </div>
+    <p class="panel-title">How important is each criterion?</p>
+    <p class="panel-desc">For each pair, move the slider toward the criterion that matters more — and how much more.</p>
     <div class="card">
-      <div class="card-accent"></div>
-      <div class="matrix-wrapper" id="criteria-matrix-wrapper"></div>
+      <div class="card-accent" style="background:var(--gold)"></div>
+      <div class="pairwise-list" id="criteria-pw-list"></div>
       <div id="criteria-cr-display"></div>
     </div>
     <div class="btn-actions">
@@ -235,10 +357,10 @@
     </div>
   </div>
 
-  <!-- Panel 3: Alternative Evaluation -->
+  <!-- ===== PANEL 3: EVALUATE ALTERNATIVES ===== -->
   <div class="panel" id="panel-3">
-    <p class="panel-title">Evaluate alternatives</p>
-    <p class="panel-desc">Objective criteria use raw numeric values; subjective criteria use pairwise comparison.</p>
+    <p class="panel-title">Evaluate each alternative</p>
+    <p class="panel-desc">Enter values for objective criteria, answer comparison questions for subjective, or provide estimates for uncertain ones.</p>
     <div id="alt-eval-wrapper"></div>
     <div class="btn-actions">
       <button class="btn btn-outline" onclick="setStep(2)">← Back</button>
@@ -248,7 +370,7 @@
     </div>
   </div>
 
-  <!-- Panel 4: Results -->
+  <!-- ===== PANEL 4: RESULTS ===== -->
   <div class="panel" id="panel-4">
     <p class="panel-title">Analysis complete</p>
     <p class="panel-desc">Your structured decision recommendation based on AHP.</p>
@@ -261,334 +383,427 @@
 </main>
 
 <script>
-const state = { decision:'', criteria:[], alternatives:[], criteriaComparisons:[] };
+// ============================================================
+// State
+// ============================================================
+const state = {decision:'', criteria:[], alternatives:[], criteriaComparisons:[]};
 
+// Saaty scale: slider 0–16 maps to values
+// 0 = 9 (left extreme), 8 = 1 (center equal), 16 = 9 (right extreme)
+const SLIDER_LABELS = ['Extreme','Very Strong','Strong','Moderate','Slight','Equal','Slight','Moderate','Strong','Very Strong','Extreme'];
+const SLIDER_STEPS  = [9,8,7,6,5,4,3,2,1,1,2,3,4,5,6,7,8,9]; // 17 steps
+
+function sliderToValue(pos, leftName, rightName) {
+  // pos 0..16: 0=left extreme, 8=equal, 16=right extreme
+  const raw = SLIDER_STEPS[pos];
+  if (pos < 8)  return {value: raw, preferred: leftName};   // left preferred
+  if (pos > 8)  return {value: raw, preferred: rightName};  // right preferred
+  return {value: 1, preferred: null};
+}
+
+function sliderLabel(pos, leftName, rightName) {
+  if (pos === 8) return 'Equal importance';
+  const {value, preferred} = sliderToValue(pos, leftName, rightName);
+  const lvl = SLIDER_LABELS[Math.round(pos/16*10)];
+  return `<strong>${preferred}</strong> is preferred — ${lvl} (${value}×)`;
+}
+
+// ============================================================
+// Navigation
+// ============================================================
 function setStep(n) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(`panel-${n}`).classList.add('active');
-  document.querySelectorAll('.step-dot').forEach((d,i) => {
+  document.querySelectorAll('.step-dot').forEach((d,i)=>{
     d.classList.remove('active','done');
-    if (i < n) d.classList.add('done');
-    if (i === n) d.classList.add('active');
+    if(i<n) d.classList.add('done');
+    if(i===n) d.classList.add('active');
   });
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ---- Step 0 → 1 ----
+function toggleAcc(id) {
+  const body = document.getElementById('acc-'+id);
+  const arrow = document.getElementById('arr-'+id);
+  const open = body.classList.toggle('open');
+  if(arrow) arrow.classList.toggle('open', open);
+}
+
+function modeLabel(mode) {
+  if(mode==='objective')  return '⊞ Objective';
+  if(mode==='uncertain')  return '◈ Uncertain';
+  return '⊟ Subjective';
+}
+
+// ============================================================
+// Panel 0 → 1
+// ============================================================
 function goToStep1() {
   const dec = document.getElementById('decision-input').value.trim();
-  if (!dec) { alert('Please enter a decision statement.'); return; }
+  if(!dec){alert('Please enter a decision statement.');return;}
   const nc = parseInt(document.getElementById('n-criteria').value);
   const na = parseInt(document.getElementById('n-alternatives').value);
-  if (nc < 2 || nc > 10 || na < 2 || na > 8) { alert('Criteria: 2–10, Alternatives: 2–8'); return; }
+  if(nc<2||nc>10||na<2||na>8){alert('Criteria: 2–10, Alternatives: 2–8');return;}
   state.decision = dec;
 
   const cl = document.getElementById('criteria-list');
   cl.innerHTML = '';
-  for (let i = 0; i < nc; i++) {
-    const prev = state.criteria[i] || {name:'', type:'benefit', mode:'subjective'};
+  for(let i=0;i<nc;i++){
+    const prev = state.criteria[i] || {name:'', type:'benefit', mode:'objective'};
     cl.innerHTML += `
-      <div class="criterion-row" id="cr-row-${i}">
+      <div class="criterion-row">
         <div class="field" style="margin:0">
           <label>Criterion ${i+1}</label>
-          <input type="text" id="crit-name-${i}" placeholder="e.g. Cost, Performance…" value="${prev.name}" />
+          <input type="text" id="crit-name-${i}" placeholder="e.g. Price, Performance, Quality…" value="${prev.name}"/>
         </div>
         <button class="toggle-badge ${prev.type}" id="crit-type-${i}" onclick="toggleType(${i})">${prev.type==='benefit'?'↑ Benefit':'↓ Cost'}</button>
-        <button class="toggle-badge ${prev.mode}" id="crit-mode-${i}" onclick="toggleMode(${i})">${prev.mode==='objective'?'⊞ Objective':'⊟ Subjective'}</button>
+        <button class="toggle-badge ${prev.mode}" id="crit-mode-${i}" onclick="cycleMode(${i})">${modeLabel(prev.mode)}</button>
       </div>`;
   }
 
   const al = document.getElementById('alt-list');
   al.innerHTML = '';
-  for (let i = 0; i < na; i++) {
+  for(let i=0;i<na;i++){
     al.innerHTML += `
       <div class="field">
         <label>Alternative ${i+1}</label>
-        <input type="text" id="alt-name-${i}" placeholder="e.g. Option A, Python, City X…" value="${state.alternatives[i]||''}" />
+        <input type="text" id="alt-name-${i}" placeholder="e.g. Option A, MacBook Pro, Vendor X…" value="${state.alternatives[i]||''}"/>
       </div>`;
   }
   setStep(1);
 }
 
-function toggleType(i) {
+function toggleType(i){
   const btn = document.getElementById(`crit-type-${i}`);
   const isBenefit = btn.classList.contains('benefit');
-  btn.classList.toggle('benefit', !isBenefit);
-  btn.classList.toggle('cost', isBenefit);
+  btn.classList.toggle('benefit',!isBenefit);
+  btn.classList.toggle('cost',isBenefit);
   btn.textContent = isBenefit ? '↓ Cost' : '↑ Benefit';
 }
 
-function toggleMode(i) {
+function cycleMode(i){
   const btn = document.getElementById(`crit-mode-${i}`);
-  const isObj = btn.classList.contains('objective');
-  btn.classList.toggle('objective', !isObj);
-  btn.classList.toggle('subjective', isObj);
-  btn.textContent = isObj ? '⊟ Subjective' : '⊞ Objective';
+  const modes = ['objective','subjective','uncertain'];
+  const cur = modes.find(m=>btn.classList.contains(m)) || 'objective';
+  const next = modes[(modes.indexOf(cur)+1)%modes.length];
+  modes.forEach(m=>btn.classList.remove(m));
+  btn.classList.add(next);
+  btn.textContent = modeLabel(next);
 }
 
-// ---- Step 1 → 2 ----
+// ============================================================
+// Panel 1 → 2  (build pairwise slider questions for criteria)
+// ============================================================
 function goToStep2() {
   const nc = document.querySelectorAll('[id^="crit-name-"]').length;
   const na = document.querySelectorAll('[id^="alt-name-"]').length;
   state.criteria = [];
-  for (let i = 0; i < nc; i++) {
+  for(let i=0;i<nc;i++){
     const name = document.getElementById(`crit-name-${i}`).value.trim();
-    if (!name) { alert(`Please name criterion ${i+1}.`); return; }
-    const type = document.getElementById(`crit-type-${i}`).classList.contains('benefit') ? 'benefit' : 'cost';
-    const mode = document.getElementById(`crit-mode-${i}`).classList.contains('objective') ? 'objective' : 'subjective';
-    state.criteria.push({name, type, mode});
+    if(!name){alert(`Please name criterion ${i+1}.`);return;}
+    const type = document.getElementById(`crit-type-${i}`).classList.contains('benefit')?'benefit':'cost';
+    const modeBtn = document.getElementById(`crit-mode-${i}`);
+    const mode = ['subjective','uncertain'].find(m=>modeBtn.classList.contains(m)) || 'objective';
+    state.criteria.push({name,type,mode});
   }
   state.alternatives = [];
-  for (let i = 0; i < na; i++) {
+  for(let i=0;i<na;i++){
     const name = document.getElementById(`alt-name-${i}`).value.trim();
-    if (!name) { alert(`Please name alternative ${i+1}.`); return; }
+    if(!name){alert(`Please name alternative ${i+1}.`);return;}
     state.alternatives.push(name);
   }
-  buildCriteriaMatrix();
+  buildCriteriaPairwise();
   setStep(2);
 }
 
-// ---- Criteria matrix ----
-function buildCriteriaMatrix() {
-  const names = state.criteria.map(c => c.name);
-  document.getElementById('criteria-matrix-wrapper').innerHTML = buildMatrixHTML('crit', names);
-}
-
-function buildMatrixHTML(prefix, names) {
+function buildCriteriaPairwise() {
+  const names = state.criteria.map(c=>c.name);
   const n = names.length;
-  let html = `<table class="matrix"><thead><tr><th></th>`;
-  names.forEach(c => { html += `<th>${c}</th>`; });
-  html += `</tr></thead><tbody>`;
-  for (let i = 0; i < n; i++) {
-    html += `<tr><td style="text-align:left;font-size:0.8rem;min-width:90px;padding-right:1rem">${names[i]}</td>`;
-    for (let j = 0; j < n; j++) {
-      if (i===j) html += `<td class="diagonal">1</td>`;
-      else if (j>i) html += `<td><input type="number" id="${prefix}-${i}-${j}" min="0.111" max="9" step="0.1" value="1" oninput="updateReciprocal('${prefix}',${i},${j},${n})" /></td>`;
-      else html += `<td class="computed" id="${prefix}-r-${i}-${j}">1</td>`;
+  const list = document.getElementById('criteria-pw-list');
+  list.innerHTML = '';
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      list.innerHTML += buildSliderCard('crit', i, j, names[i], names[j]);
     }
-    html += `</tr>`;
-  }
-  html += `</tbody></table>`;
-  return html;
-}
-
-function updateReciprocal(prefix,i,j,n) {
-  const val = parseFloat(document.getElementById(`${prefix}-${i}-${j}`).value);
-  if (!isNaN(val) && val > 0) {
-    const el = document.getElementById(`${prefix}-r-${j}-${i}`);
-    if (el) el.textContent = (1/val).toFixed(3);
   }
 }
 
-// ---- Step 2 → 3 ----
+function buildSliderCard(prefix, i, j, leftName, rightName) {
+  const id = `${prefix}-${i}-${j}`;
+  return `
+    <div class="pw-card">
+      <div class="pw-question">Comparing: <strong>${leftName}</strong> vs <strong>${rightName}</strong></div>
+      <div class="pw-slider-wrap">
+        <div class="pw-labels">
+          <span class="pw-label-left">${leftName}</span>
+          <span class="pw-label-right">${rightName}</span>
+        </div>
+        <input type="range" class="pw-slider" id="${id}" min="0" max="16" step="1" value="8"
+          oninput="updateSliderDisplay('${id}','${leftName}','${rightName}')"/>
+        <div class="pw-value-display" id="${id}-disp"><span>Equal importance</span></div>
+      </div>
+    </div>`;
+}
+
+function updateSliderDisplay(id, leftName, rightName) {
+  const pos = parseInt(document.getElementById(id).value);
+  const el = document.getElementById(id+'-disp');
+  el.innerHTML = `<span>${sliderLabel(pos, leftName, rightName)}</span>`;
+}
+
+// ============================================================
+// Panel 2 → 3
+// ============================================================
 async function goToStep3() {
   const n = state.criteria.length;
   const comps = [];
-  for (let i = 0; i < n; i++) for (let j = i+1; j < n; j++) {
-    const v = parseFloat(document.getElementById(`crit-${i}-${j}`).value);
-    if (isNaN(v)||v<=0) { alert('All values must be positive numbers.'); return; }
-    comps.push(v);
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      const pos = parseInt(document.getElementById(`crit-${i}-${j}`).value);
+      const {value, preferred} = sliderToValue(pos, state.criteria[i].name, state.criteria[j].name);
+      // if left preferred (or equal), value goes in [i][j]; if right preferred, invert
+      const v = (pos <= 8) ? value : (1/value);
+      comps.push(v);
+    }
   }
-  try {
-    const res = await fetch('/api/validate-criteria', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({n, comparisons:comps})});
+  try{
+    const res = await fetch('/api/validate-criteria',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n,comparisons:comps})});
     const data = await res.json();
     const el = document.getElementById('criteria-cr-display');
     const ok = data.consistent;
-    el.innerHTML = `<div class="cr-badge ${ok?'ok':'warn'}"><div class="cr-dot"></div>CR = ${data.consistency_ratio.toFixed(4)} — ${ok?'Consistent ✓':'Inconsistent — consider revising'}</div>`;
-    if (!ok && !confirm(`CR = ${data.consistency_ratio.toFixed(3)} exceeds 0.10. Continue anyway?`)) return;
-  } catch(e) { console.warn('CR validation unavailable'); }
+    el.innerHTML = `<div class="cr-badge ${ok?'ok':'warn'}"><div class="cr-dot"></div>CR = ${data.consistency_ratio.toFixed(4)} — ${ok?'Consistent ✓':'Inconsistent — some comparisons may contradict each other'}</div>`;
+    if(!ok && !confirm(`Consistency Ratio = ${data.consistency_ratio.toFixed(3)} (threshold: 0.10).\n\nSome judgments may be contradictory. You can go back to adjust, or continue anyway.`)) return;
+  } catch(e){ console.warn('CR check unavailable'); }
   state.criteriaComparisons = comps;
   buildAltEvaluation();
   setStep(3);
 }
 
-// ---- Build alternative evaluation panels ----
+// ============================================================
+// Build alternative evaluation
+// ============================================================
 function buildAltEvaluation() {
   const wrapper = document.getElementById('alt-eval-wrapper');
   wrapper.innerHTML = '';
   state.criteria.forEach((crit, ci) => {
     const typeBadge = `<span class="toggle-badge ${crit.type}" style="cursor:default">${crit.type==='benefit'?'↑ Benefit':'↓ Cost'}</span>`;
-    const modeBadge = `<span class="toggle-badge ${crit.mode}" style="cursor:default">${crit.mode==='objective'?'⊞ Objective':'⊟ Subjective'}</span>`;
+    const modeBadge = `<span class="toggle-badge ${crit.mode}" style="cursor:default">${modeLabel(crit.mode)}</span>`;
+    let inner = '';
 
-    let innerHTML = '';
-    if (crit.mode === 'objective') {
-      innerHTML = `<div class="mode-info" style="margin-bottom:1rem">Enter the actual numeric value for each alternative. Values will be normalized automatically.</div>
+    if(crit.mode === 'objective') {
+      inner = `<p class="mode-info">Enter the actual measured value for each alternative.</p>
         <div class="obj-grid">`;
-      state.alternatives.forEach((alt, ai) => {
-        innerHTML += `<div class="field" style="margin:0">
-          <label>${alt}</label>
-          <input type="number" id="obj-${ci}-${ai}" min="0.000001" step="any" placeholder="e.g. 95, 1200, 0.85" />
-        </div>`;
+      state.alternatives.forEach((alt,ai) => {
+        inner += `<div class="field" style="margin:0"><label>${alt}</label><input type="number" id="obj-${ci}-${ai}" step="any" placeholder="e.g. 500, 4.7, 120"/></div>`;
       });
-      innerHTML += `</div>`;
+      inner += `</div>`;
+
+    } else if(crit.mode === 'uncertain') {
+      inner = `<p class="mode-info">Enter the expected value and variance for each alternative, then set your risk tolerance.</p>
+        <table class="unc-table">
+          <thead><tr><th>Alternative</th><th>Expected Value (Mean)</th><th>Variance (Risk)</th></tr></thead>
+          <tbody>`;
+      state.alternatives.forEach((alt,ai) => {
+        inner += `<tr>
+          <td>${alt}</td>
+          <td><input type="number" id="unc-mean-${ci}-${ai}" step="any" placeholder="e.g. 8.5"/></td>
+          <td><input type="number" id="unc-var-${ci}-${ai}" min="0" step="any" placeholder="e.g. 1.2"/></td>
+        </tr>`;
+      });
+      inner += `</tbody></table>
+        <div class="risk-row">
+          <label>Risk tolerance (λ):</label>
+          <input type="number" id="unc-lambda-${ci}" min="0" step="0.1" value="1" style="max-width:120px"/>
+          <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted)">0 = risk-neutral · 1 = moderate · 2+ = risk-averse</span>
+        </div>`;
+
     } else {
-      innerHTML = `
-        <div class="saaty-guide" style="margin-bottom:0.75rem">
-          <div class="saaty-chip"><span>1</span> Equal</div>
-          <div class="saaty-chip"><span>3</span> Moderate</div>
-          <div class="saaty-chip"><span>5</span> Strong</div>
-          <div class="saaty-chip"><span>7</span> Very Strong</div>
-          <div class="saaty-chip"><span>9</span> Extreme</div>
-        </div>
-        <div class="matrix-wrapper">${buildMatrixHTML(`alt-${ci}`, state.alternatives)}</div>
-        <div id="alt-cr-display-${ci}"></div>`;
+      // Subjective — slider questions
+      inner = `<p class="mode-info">Move the slider toward the alternative you prefer and how strongly. No matrix — just one question per pair.</p>
+        <div class="pairwise-list">`;
+      const alts = state.alternatives;
+      for(let i=0;i<alts.length;i++){
+        for(let j=i+1;j<alts.length;j++){
+          inner += buildSliderCard(`alt-${ci}`, i, j, alts[i], alts[j]);
+        }
+      }
+      inner += `</div><div id="alt-cr-display-${ci}"></div>`;
     }
 
     wrapper.innerHTML += `
       <div class="card" style="margin-bottom:1.5rem">
         <div class="card-accent" style="background:var(--sage)"></div>
-        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem">
-          <div class="section-label" style="margin:0">${crit.name}</div>
-          ${typeBadge} ${modeBadge}
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.25rem;flex-wrap:wrap">
+          <div class="section-label" style="margin:0">${crit.name}</div>${typeBadge}${modeBadge}
         </div>
-        ${innerHTML}
+        ${inner}
       </div>`;
   });
 }
 
-// ---- Calculate ----
-async function calculate() {
-  const nC = state.criteria.length;
-  const nA = state.alternatives.length;
-  const altData = [];
+// ============================================================
+// Build pairwise matrix from sliders
+// ============================================================
+function buildMatrixFromSliders(prefix, n, names) {
+  const matrix = Array.from({length:n},()=>Array(n).fill(1));
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++){
+      const pos = parseInt(document.getElementById(`${prefix}-${i}-${j}`).value);
+      const {value} = sliderToValue(pos, names[i], names[j]);
+      if(pos <= 8){ matrix[i][j]=value; matrix[j][i]=1/value; }
+      else        { matrix[j][i]=value; matrix[i][j]=1/value; }
+    }
+  }
+  // Flatten upper triangle for API
+  const flat = [];
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) flat.push(matrix[i][j]);
+  return flat;
+}
 
-  for (let ci = 0; ci < nC; ci++) {
+// ============================================================
+// Calculate
+// ============================================================
+async function calculate() {
+  const nC = state.criteria.length, nA = state.alternatives.length;
+  const altData = [], uncertainData = [];
+
+  for(let ci=0;ci<nC;ci++){
     const crit = state.criteria[ci];
-    if (crit.mode === 'objective') {
+    if(crit.mode === 'objective'){
       const vals = [];
-      for (let ai = 0; ai < nA; ai++) {
+      for(let ai=0;ai<nA;ai++){
         const v = parseFloat(document.getElementById(`obj-${ci}-${ai}`).value);
-        if (isNaN(v)||v<=0) { alert(`Enter a positive value for all alternatives under "${crit.name}".`); return; }
+        if(isNaN(v)||v<=0){alert(`Enter a positive value for all alternatives under "${crit.name}".`);return;}
         vals.push(v);
       }
       altData.push(vals);
-    } else {
-      const comps = [];
-      for (let i = 0; i < nA; i++) for (let j = i+1; j < nA; j++) {
-        const v = parseFloat(document.getElementById(`alt-${ci}-${i}-${j}`).value);
-        if (isNaN(v)||v<=0) { alert(`All values in "${crit.name}" matrix must be positive.`); return; }
-        comps.push(v);
+      uncertainData.push(null);
+
+    } else if(crit.mode === 'uncertain'){
+      const means=[], variances=[];
+      for(let ai=0;ai<nA;ai++){
+        const m = parseFloat(document.getElementById(`unc-mean-${ci}-${ai}`).value);
+        const v = parseFloat(document.getElementById(`unc-var-${ci}-${ai}`).value);
+        if(isNaN(m)){alert(`Enter expected value for all alternatives under "${crit.name}".`);return;}
+        if(isNaN(v)||v<0){alert(`Enter variance ≥ 0 for all alternatives under "${crit.name}".`);return;}
+        means.push(m); variances.push(v);
       }
-      altData.push(comps);
+      const lam = parseFloat(document.getElementById(`unc-lambda-${ci}`).value)||1;
+      altData.push(means);
+      uncertainData.push({means, variances, risk_factor:lam});
+
+    } else {
+      // subjective — build from sliders
+      const flat = buildMatrixFromSliders(`alt-${ci}`, nA, state.alternatives);
+      altData.push(flat);
+      uncertainData.push(null);
     }
   }
 
   const btn = document.getElementById('calc-btn-text');
   btn.innerHTML = `<span class="loader-dots"><span></span><span></span><span></span></span> Calculating…`;
-
-  try {
-    const res = await fetch('/api/calculate', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        decision: state.decision,
-        criteria: state.criteria,
-        alternatives: state.alternatives,
-        criteria_comparisons: state.criteriaComparisons,
-        alt_data: altData
-      })
-    });
+  try{
+    const res = await fetch('/api/calculate',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({decision:state.decision, criteria:state.criteria, alternatives:state.alternatives,
+        criteria_comparisons:state.criteriaComparisons, alt_data:altData, uncertain_data:uncertainData})});
     const data = await res.json();
     renderResults(data);
     setStep(4);
-  } catch(e) {
+  }catch(e){
     alert('Calculation failed. Make sure the FastAPI server is running.');
     console.error(e);
-  } finally {
-    btn.textContent = 'Calculate Results →';
-  }
+  }finally{btn.textContent='Calculate Results →';}
 }
 
-// ---- Render Results ----
-function renderResults(data) {
+// ============================================================
+// Render Results
+// ============================================================
+function renderResults(data){
   const container = document.getElementById('results-container');
-  const scores = data.final_scores;
-  const alts = state.alternatives;
-  const ranking = data.ranking;
-  const maxScore = Math.max(...scores);
+  const scores=data.final_scores, alts=state.alternatives, ranking=data.ranking;
+  const maxScore=Math.max(...scores);
+  let html='';
 
-  let html = `<div class="winner-card">
-    <div class="winner-label">Recommended Choice</div>
-    <div class="winner-name">${data.best}</div>
-  </div>`;
+  html+=`<div class="winner-card"><div class="winner-label">Recommended Choice</div><div class="winner-name">${data.best}</div></div>`;
 
-  // Score bars
-  html += `<div class="card"><div class="card-accent"></div><div class="section-label">Final Scores</div><div class="score-bars">`;
-  ranking.forEach((ri, rank) => {
-    const pct = (scores[ri] / maxScore * 100).toFixed(1);
-    html += `<div class="score-row">
-      <div class="score-header">
-        <span class="score-name">${alts[ri]} <span class="rank-badge ${rank===0?'gold':''}">#${rank+1}</span></span>
-        <span class="score-val">${scores[ri].toFixed(4)}</span>
-      </div>
+  html+=`<div class="card"><div class="card-accent" style="background:var(--gold)"></div><div class="section-label">Final Scores</div><div class="score-bars">`;
+  ranking.forEach((ri,rank)=>{
+    const pct=(scores[ri]/maxScore*100).toFixed(1);
+    html+=`<div class="score-row">
+      <div class="score-header"><span class="score-name">${alts[ri]}<span class="rank-badge ${rank===0?'gold':''}">#${rank+1}</span></span><span class="score-val">${scores[ri].toFixed(4)}</span></div>
       <div class="bar-track"><div class="bar-fill ${rank===0?'first':''}" style="width:${pct}%"></div></div>
     </div>`;
   });
-  html += `</div></div>`;
+  html+=`</div></div>`;
 
-  // Criteria weights
-  html += `<div class="card"><div class="card-accent"></div><div class="section-label">Criteria Weights</div><div class="criteria-weight-display">`;
-  state.criteria.forEach((c, i) => {
-    const modeBadge = `<span class="toggle-badge ${c.mode}" style="cursor:default;font-size:0.55rem;padding:0.2rem 0.5rem">${c.mode}</span>`;
-    html += `<div class="cw-chip">${modeBadge} <span>${c.name}</span> <span class="cw-chip-val">${(data.criteria_weights[i]*100).toFixed(1)}%</span></div>`;
+  html+=`<div class="card"><div class="card-accent" style="background:var(--gold)"></div><div class="section-label">Criteria Weights</div><div class="criteria-weight-display">`;
+  state.criteria.forEach((c,i)=>{
+    html+=`<div class="cw-chip"><span class="toggle-badge ${c.mode}" style="cursor:default;font-size:0.55rem;padding:0.2rem 0.5rem">${modeLabel(c.mode)}</span><span>${c.name}</span><span class="cw-chip-val">${(data.criteria_weights[i]*100).toFixed(1)}%</span></div>`;
   });
-  const crOk = data.criteria_cr <= 0.1;
-  html += `</div><div class="cr-badge ${crOk?'ok':'warn'}"><div class="cr-dot"></div>Criteria CR: ${data.criteria_cr.toFixed(4)} — ${crOk?'Consistent':'Warning: Inconsistent'}</div></div>`;
+  const crOk=data.criteria_cr<=0.1;
+  html+=`</div><div class="cr-badge ${crOk?'ok':'warn'}"><div class="cr-dot"></div>Criteria CR: ${data.criteria_cr.toFixed(4)} — ${crOk?'Consistent':'Warning: Inconsistent'}</div></div>`;
 
-  // Contribution heatmap
-  const ds = data.detailed_scores;
-  const critMaxes = state.criteria.map(c => Math.max(...ds[c.name]));
-  html += `<div class="card"><div class="card-accent" style="background:var(--sage)"></div><div class="section-label">Contribution Breakdown</div>
-    <div class="matrix-wrapper"><table class="breakdown-table"><thead><tr><th>Alternative</th>`;
-  state.criteria.forEach(c => { html += `<th>${c.name}</th>`; });
-  html += `</tr></thead><tbody>`;
-  alts.forEach(alt => {
-    html += `<tr><td>${alt}</td>`;
-    state.criteria.forEach((c, ci) => {
-      const v = ds[c.name][alts.indexOf(alt)];
-      const heat = critMaxes[ci] > 0 ? (v / critMaxes[ci] * 0.35) : 0;
-      html += `<td class="heat-cell" style="--heat:${heat.toFixed(3)}"><span>${v.toFixed(4)}</span></td>`;
+  const hasUnc = data.uncertain_details && data.uncertain_details.some(u=>u!==null);
+  if(hasUnc){
+    html+=`<div class="card"><div class="card-accent" style="background:var(--violet)"></div><div class="section-label">Uncertain Criteria — Risk Adjustment</div>`;
+    state.criteria.forEach((c,i)=>{
+      const ud=data.uncertain_details[i]; if(!ud) return;
+      html+=`<p style="font-size:0.85rem;margin-bottom:0.5rem"><strong>${c.name}</strong> <span style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--violet)">λ = ${ud.risk_factor}</span></p>
+        <table class="unc-detail-table"><thead><tr><th>Alternative</th><th>Mean</th><th>Variance</th><th>Adjusted</th></tr></thead><tbody>`;
+      alts.forEach((alt,ai)=>{
+        html+=`<tr><td>${alt}</td><td>${ud.means[ai]}</td><td>${ud.variances[ai]}</td><td style="color:var(--violet)">${ud.adjusted[ai].toFixed(4)}</td></tr>`;
+      });
+      html+=`</tbody></table><div style="height:1rem"></div>`;
     });
-    html += `</tr>`;
-  });
-  html += `</tbody></table></div></div>`;
-
-  // CR info per criterion
-  const anyCR = data.alt_crs.some(cr => cr !== null);
-  if (anyCR) {
-    html += `<div class="card"><div class="card-accent" style="background:var(--muted)"></div><div class="section-label">Subjective Criteria Consistency</div>`;
-    state.criteria.forEach((c, i) => {
-      if (data.alt_crs[i] !== null) {
-        const ok = data.alt_crs[i] <= 0.1;
-        html += `<div class="cr-badge ${ok?'ok':'warn'}" style="margin-right:0.5rem"><div class="cr-dot"></div>${c.name}: CR = ${data.alt_crs[i].toFixed(4)}</div>`;
-      }
-    });
-    html += `</div>`;
+    html+=`</div>`;
   }
 
-  // Sensitivity
-  html += `<div class="card"><div class="card-accent" style="background:var(--rust)"></div><div class="section-label">Sensitivity Analysis (+10% per criterion)</div><div class="sensitivity-grid">`;
-  data.sensitivity.forEach(s => {
-    html += `<div class="sens-card">
-      <div class="sens-criterion">${s.criterion}</div>
+  const ds=data.detailed_scores;
+  const critMaxes=state.criteria.map(c=>Math.max(...ds[c.name]));
+  html+=`<div class="card"><div class="card-accent" style="background:var(--sage)"></div><div class="section-label">Contribution Breakdown</div>
+    <div class="matrix-wrapper"><table class="breakdown-table"><thead><tr><th>Alternative</th>`;
+  state.criteria.forEach(c=>{html+=`<th>${c.name}</th>`;});
+  html+=`</tr></thead><tbody>`;
+  alts.forEach(alt=>{
+    html+=`<tr><td>${alt}</td>`;
+    state.criteria.forEach((c,ci)=>{
+      const v=ds[c.name][alts.indexOf(alt)];
+      const heat=critMaxes[ci]>0?(v/critMaxes[ci]*0.35):0;
+      html+=`<td class="heat-cell" style="--heat:${heat.toFixed(3)}"><span>${v.toFixed(4)}</span></td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+
+  const anyCR=data.alt_crs.some(cr=>cr!==null);
+  if(anyCR){
+    html+=`<div class="card"><div class="card-accent" style="background:var(--muted)"></div><div class="section-label">Subjective Criteria Consistency</div>`;
+    state.criteria.forEach((c,i)=>{
+      if(data.alt_crs[i]===null) return;
+      const ok=data.alt_crs[i]<=0.1;
+      html+=`<div class="cr-badge ${ok?'ok':'warn'}" style="margin-right:0.5rem;margin-bottom:0.4rem"><div class="cr-dot"></div>${c.name}: CR = ${data.alt_crs[i].toFixed(4)} ${ok?'✓':'⚠ Inconsistent'}</div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`<div class="card"><div class="card-accent" style="background:var(--rust)"></div><div class="section-label">Sensitivity Analysis (+10% per criterion)</div><div class="sensitivity-grid">`;
+  data.sensitivity.forEach(s=>{
+    html+=`<div class="sens-card"><div class="sens-criterion">${s.criterion}</div>
       <div class="sens-result ${s.stable?'stable':'changed'}">${s.stable?'● Stable':'● Changed'}</div>
       ${!s.stable?`<div class="sens-arrow">→ ${s.new_best}</div>`:''}
     </div>`;
   });
-  html += `</div></div>`;
+  html+=`</div></div>`;
 
-  container.innerHTML = html;
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(b => {
-      const w = b.style.width; b.style.width = '0';
-      setTimeout(() => { b.style.width = w; }, 50);
-    });
-  }, 100);
+  container.innerHTML=html;
+  setTimeout(()=>{
+    document.querySelectorAll('.bar-fill').forEach(b=>{const w=b.style.width;b.style.width='0';setTimeout(()=>{b.style.width=w;},50);});
+  },100);
 }
 
-function restart() {
-  state.criteria = []; state.alternatives = []; state.criteriaComparisons = [];
-  document.getElementById('decision-input').value = '';
+function restart(){
+  state.criteria=[];state.alternatives=[];state.criteriaComparisons=[];
+  document.getElementById('decision-input').value='';
   setStep(0);
 }
 </script>
