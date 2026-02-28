@@ -105,6 +105,7 @@ async def calculate(req: AHPRequest):
     n_criteria = len(req.criteria)
     n_alt = len(req.alternatives)
 
+    # Criteria weights
     crit_matrix = build_matrix(n_criteria, req.criteria_comparisons)
     crit_weights, crit_lmax = calculate_weights(crit_matrix)
     crit_cr = consistency_ratio(n_criteria, crit_lmax)
@@ -114,6 +115,7 @@ async def calculate(req: AHPRequest):
     detailed_scores = {}
     alt_crs = []
 
+    # ---- Calculate Alternative Weights ----
     for i, criterion in enumerate(req.criteria):
 
         if criterion.mode == "objective":
@@ -139,6 +141,33 @@ async def calculate(req: AHPRequest):
         final_scores += np.array(contribution)
 
     ranking = np.argsort(final_scores)[::-1].tolist()
+    best_alternative = req.alternatives[ranking[0]]
+
+    # ---- Sensitivity Analysis (+10% weight shift) ----
+    sensitivity = []
+
+    for i in range(n_criteria):
+        modified_weights = crit_weights.copy()
+        modified_weights[i] *= 1.10
+        total = sum(modified_weights)
+        modified_weights = [w / total for w in modified_weights]
+
+        new_scores = np.zeros(n_alt)
+
+        for j in range(n_criteria):
+            for k in range(n_alt):
+                new_scores[k] += modified_weights[j] * alt_weights_list[j][k]
+
+        new_ranking = np.argsort(new_scores)[::-1].tolist()
+        new_best = req.alternatives[new_ranking[0]]
+
+        sensitivity.append({
+            "criterion": req.criteria[i].name,
+            "original_best": best_alternative,
+            "new_best": new_best,
+            "stable": new_best == best_alternative,
+            "new_scores": new_scores.tolist()
+        })
 
     return {
         "decision": req.decision,
@@ -149,6 +178,7 @@ async def calculate(req: AHPRequest):
         "alt_crs": alt_crs,
         "final_scores": final_scores.tolist(),
         "ranking": ranking,
-        "best": req.alternatives[ranking[0]],
-        "detailed_scores": detailed_scores
+        "best": best_alternative,
+        "detailed_scores": detailed_scores,
+        "sensitivity": sensitivity
     }
